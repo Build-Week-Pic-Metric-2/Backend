@@ -5,19 +5,21 @@ const Register = require("../users/register-model");
 const Login = require("../users/login-model");
 
 router.post("/register", (req, res) => {
-  const credentials = req.body;
+  let { username, password } = req.body;
 
-  if (credentials.username && credentials.password) {
-    const hash = bcrypt.hashSync(credentials.password, 10);
-    credentials.password = hash;
-    Register.addUser(credentials)
+  if (username && password) {
+    const hash = bcrypt.hashSync(password, 10);
+    password = hash;
+    Register.addUser({ username, password })
       .then(user => {
-        req.session.username = user.username;
-        res.status(201).json(user);
+        const { id, username } = user;
+
+        req.session.username = username;
+        res.status(201).json({ id, username });
       })
       .catch(error => {
         console.log(`Registration error: ${error}`);
-        res.status(500).json(error);
+        res.status(500).json({ message: "username is not available." });
       });
   } else {
     res
@@ -31,9 +33,10 @@ router.post("/login", (req, res) => {
 
   Login.findUser(username)
     .then(user => {
+      let { id, username } = user;
       if (user && bcrypt.compareSync(password, user.password)) {
         req.session.username = user.username;
-        res.status(200).json({ message: `Welcome back, ${user.username}!` });
+        res.status(200).json({ id, username });
       } else {
         res.status(401).json({ message: "Invalid credentials provided." });
       }
