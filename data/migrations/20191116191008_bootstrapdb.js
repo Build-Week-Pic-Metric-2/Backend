@@ -14,7 +14,7 @@ exports.up = function(knex) {
     })
 
     .createTable("photos", tbl => {
-      tble.increments();
+      tbl.increments();
 
       tbl.string("title", 255).notNullable();
       tbl.string("url", 255).notNullable();
