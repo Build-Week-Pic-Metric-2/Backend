@@ -10,10 +10,10 @@ const config = KnexSessionStorage => {
       httpOnly: true
     },
     resave: false,
-    saveUninitialized: true, //Read about GDPR and respect it.
+    saveUninitialized: true,
     store: new KnexSessionStorage({
       knex: knexConnection,
-      clearInterval: 1000 * 60 * 10, //Delete expired sessions every 10 minutes.
+      clearInterval: 1000 * 60 * 10,
       tablename: "user_sessions",
       sidfieldname: "id",
       createtable: true
