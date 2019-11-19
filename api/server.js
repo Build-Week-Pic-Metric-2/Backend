@@ -40,4 +40,6 @@ server.get("/", (req, res) => {
 server.use("/api/auth", authRouter);
 server.use("/api/photos", photosRouter);
 
+server.use("/", express.static("view"));
+
 module.exports = server;

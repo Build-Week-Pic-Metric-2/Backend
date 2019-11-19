@@ -1,7 +1,3 @@
 # Backend
 
-#register
-api/auth/register
-
-#login
-api/auth/login
+https://picmetric1.herokuapp.com/index.html
