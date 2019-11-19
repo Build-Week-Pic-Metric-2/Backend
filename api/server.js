@@ -1,5 +1,8 @@
 require("dotenv").config();
 
+const axios = require("axios");
+axios.defaults.withCredentials = true;
+
 const express = require("express");
 const helmet = require("helmet");
 const morgan = require("morgan");
@@ -11,14 +14,20 @@ const KnexSessionStorage = require("connect-session-knex")(session);
 const sessionConfiguration = require("./sessionConfig").config(
   KnexSessionStorage
 );
-
+const corsOptions = {
+  origin: ["http://localhost:3000", "http://localhost:8080"],
+  methods: "GET, POST, PUT, DELETE",
+  credentials: true,
+  optionsSuccessStatus: 200
+};
 const authRouter = require("../auth/auth-router");
+const photosRouter = require("../photos/photosRouter");
 
 const server = express();
 
 server.use(express.json());
 server.use(helmet());
-server.use(cors());
+server.use(cors(corsOptions));
 server.use(morgan("dev"));
 server.use(session(sessionConfiguration));
 
@@ -29,5 +38,6 @@ server.get("/", (req, res) => {
 });
 
 server.use("/api/auth", authRouter);
+server.use("/api/photos", photosRouter);
 
 module.exports = server;
