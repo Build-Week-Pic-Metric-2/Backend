@@ -27,10 +27,10 @@ module.exports = {
     connection: process.env.DATABASE_URL,
     migrations: {
       tableName: "knex_migrations",
-      directory: "./data/migrations"
+      directory: "./api/data/migrations"
     },
     seeds: {
-      directory: "./data/seeds"
+      directory: "./api/data/seeds"
     }
   }
 };
