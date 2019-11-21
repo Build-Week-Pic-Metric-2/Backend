@@ -15,7 +15,7 @@ const sessionConfiguration = require("./sessionConfig").config(
   KnexSessionStorage
 );
 const corsOptions = {
-  origin: ["http://127.0.0.1:5500"],
+  origin: "http://localhost:3000",
   methods: "GET, POST, PUT, DELETE",
   credentials: true,
   optionsSuccessStatus: 200

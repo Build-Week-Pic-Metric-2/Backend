@@ -1,42 +1,40 @@
 const router = require("express").Router();
-const fs = require("fs");
-const multer = require("multer");
 const authenticated = require("../middleware/authenticated");
 const Photos = require("./photos-model");
+const multer = require("multer");
 
-const handleError = (err, res) => {
-  res.status(500).json("Oops.. something went wrong!");
-};
+const fs = require("fs");
 
-const upload = multer({
-  dest: "../uploads"
-});
-
-// CREATE
-router.post("/:id", upload.single("file", "file-upload"), (req, res) => {
-  const tempPath = req.file.path;
-  const targetPath = path.join(
-    __dirname,
-    `../uploads/image${path.extname(req.file.originalname)}`
-  );
-
-  if (
-    path.extname(req.file.originalname).toLowerCase() === ".png" ||
-    path.extname(req.file.originalname).toLowerCase() === ".jpg"
-  ) {
-    fs.rename(tempPath, targetPath, err => {
-      if (err) return handleError(err, res);
-
-      res.status(200).json({ message: "file uploaded!" });
-    });
-  } else {
-    fs.unlink(tempPath, err => {
-      if (err) return handleError(err, res);
-
-      res.status(403).json({ message: "Only .png, .jpg files are allowed!" });
-    });
+let storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, "./uploads/");
+  },
+  filename: function(req, file, cb) {
+    cb(null, file.originalname);
   }
 });
+
+// Open mic and talk O_O
+const upload = multer({ storage: storage });
+
+router.post("/test/", upload.single("file"), (req, res, next) => {
+  console.log(req.file);
+  res.status(200).json({ message: "Works.." });
+  fs.unlink(`./uploads/${req.file.originalname}`, err => {
+    if (err) throw err;
+
+    console.log("Disposed of file, to keep storage down.");
+  });
+});
+
+// const upload = require("../api/services/file-uploader");
+// const singleImageUpload = upload.single("image");
+
+// router.post("/image-upload", async (req, res) => {
+//   singleImageUpload(req, res, error => {
+//     return res.json({ imageUrl: req.file.location });
+//   });
+// });
 
 // READ
 router.get("/:id", authenticated, async (req, res) => {
