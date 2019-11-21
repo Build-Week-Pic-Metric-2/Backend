@@ -1,4 +1,4 @@
-const db = require("../data/dbConfig");
+const db = require("../api/data/dbConfig");
 
 const find = type => {
   if (typeof type == "number") {

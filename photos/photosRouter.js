@@ -1,40 +1,28 @@
 const router = require("express").Router();
 const authenticated = require("../middleware/authenticated");
 const Photos = require("./photos-model");
-const multer = require("multer");
 
-const fs = require("fs");
+// CREATE
+router.post("/:id", authenticated, async (req, res) => {
+  const { id } = req.params;
+  const { photo_title, photo_url } = req.body;
 
-let storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, "./uploads/");
-  },
-  filename: function(req, file, cb) {
-    cb(null, file.originalname);
+  if (photo_title && photo_url) {
+    const user = await Photos.findUser(id);
+
+    if (user) {
+      const photo = await Photos.add({
+        title: photo_title,
+        url: photo_url,
+        user_id: id
+      });
+
+      if (photo) {
+        res.status(201).json(photo);
+      }
+    }
   }
 });
-
-// Open mic and talk O_O
-const upload = multer({ storage: storage });
-
-router.post("/test/", upload.single("file"), (req, res, next) => {
-  console.log(req.file);
-  res.status(200).json({ message: "Works.." });
-  fs.unlink(`./uploads/${req.file.originalname}`, err => {
-    if (err) throw err;
-
-    console.log("Disposed of file, to keep storage down.");
-  });
-});
-
-// const upload = require("../api/services/file-uploader");
-// const singleImageUpload = upload.single("image");
-
-// router.post("/image-upload", async (req, res) => {
-//   singleImageUpload(req, res, error => {
-//     return res.json({ imageUrl: req.file.location });
-//   });
-// });
 
 // READ
 router.get("/:id", authenticated, async (req, res) => {

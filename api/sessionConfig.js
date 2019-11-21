@@ -1,4 +1,4 @@
-const knexConnection = require("../data/dbConfig");
+const knexConnection = require("../api/data/dbConfig");
 
 const config = KnexSessionStorage => {
   return {

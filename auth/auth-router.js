@@ -1,52 +1,57 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 
-const Register = require("../users/register-model");
-const Login = require("../users/login-model");
+const Auth = require("./auth-model");
 
 router.post("/register", (req, res) => {
   let { username, password } = req.body;
 
-  if (username && password) {
-    const hash = bcrypt.hashSync(password, 10);
+  if ((username, password)) {
+    const hash = bcrypt.hashSync(password, 14);
     password = hash;
-    Register.addUser({ username, password })
-      .then(user => {
-        const { id, username } = user;
 
+    Auth.add({ username, password })
+      .then(user => {
+        const u = { id: user.id, username: user.username };
         req.session.username = username;
-        res.status(201).json({ id, username });
+        res.status(201).json(u);
       })
       .catch(error => {
-        console.log(`Registration error: ${error}`);
-        res.status(500).json({ message: "username is not available." });
+        console.log(error);
+        res.header = {
+          "Access-Control-Allow-Credentials": true
+        };
+        res
+          .status(500)
+          .json({ message: "An account with this username already exits." });
       });
   } else {
     res
       .status(401)
-      .json({ message: "Please be sure to provide a username and password." });
+      .json({ message: "Please be sure to provide a username & password." });
   }
 });
 
 router.post("/login", (req, res) => {
   const { username, password } = req.body;
 
-  Login.findUser(username)
-    .then(user => {
-      let { id, username } = user;
+  if (username && password) {
+    Auth.find(username).then(user => {
       if (user && bcrypt.compareSync(password, user.password)) {
-        req.session.username = user.username;
+        const { id, username } = user;
+        req.session.username = username;
         res.status(200).json({ id, username });
       } else {
-        res.status(401).json({ message: "Invalid credentials provided." });
+        res
+          .status(404)
+          .json({ message: "We could not find a username that matched." });
       }
-    })
-    .catch(error => {
-      console.log(error);
-      res.status(500).json({
-        message: "Something went wrong while validating the credentials."
-      });
     });
+  } else {
+    res
+      .status(401)
+      .json({ message: "Please be sure to provide a username & password." });
+  }
 });
 
 router.get("/logout", (req, res) => {
@@ -54,7 +59,7 @@ router.get("/logout", (req, res) => {
     req.session.destroy();
     res.status(200).json({ message: "Logged out successfully." });
   } else {
-    res.status(200).json({ message: "No session was found." });
+    res.status(404).json({ message: "No session found." });
   }
 });
 
